@@ -6,18 +6,17 @@ import io
 
 app = Flask(__name__)
 
-# Load Marqo NSFW Detection Model
+# load model
 model = timm.create_model('hf_hub:Marqo/nsfw-image-detection-384', pretrained=True)
 model.eval()
 
-# Get model label names (usually ['SFW', 'NSFW'])
 class_names = model.pretrained_cfg['label_names']
 
-# Image preprocessing function
+# process the image
 def preprocess_image(image_bytes):
     image = Image.open(io.BytesIO(image_bytes)).convert('RGB')
     transform = timm.data.create_transform(**timm.data.resolve_model_data_config(model), is_training=False)
-    tensor = transform(image).unsqueeze(0)  # Add batch dimension
+    tensor = transform(image).unsqueeze(0)
     return tensor
 
 @app.route('/detect', methods=['POST'])
